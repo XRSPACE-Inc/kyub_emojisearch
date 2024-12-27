@@ -6,10 +6,12 @@
 
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 using UnityEditor;
 using TMPro.EditorUtilities;
 using TMPro.SpriteAssetUtilities;
+using Newtonsoft.Json;
 
 namespace KyubEditor.EmojiSearch
 {
@@ -21,6 +23,9 @@ namespace KyubEditor.EmojiSearch
         {
             try
             {
+                //Reorder Json Data to avoid sprite misplacement
+                json = ReorderJsonData(json);
+
                 //Unity cannot deserialize Dictionary, so we converted the dictionary to List using MiniJson
                 json = ConvertToUnityJsonFormat(json);
                 PreConvertedSpritesheetData preData = JsonUtility.FromJson<PreConvertedSpritesheetData>(json);
@@ -71,6 +76,39 @@ namespace KyubEditor.EmojiSearch
                 }
             }
             return jObject != null && changed ? MiniJsonEditor.Serialize(jObject) : json;
+        }
+
+        public static string ReorderJsonData(string jsonFileText)
+        {
+            var data = JsonConvert.DeserializeObject<List<PreConvertedImgData>>(jsonFileText);
+
+            var reorderedData = data.OrderBy(
+                item =>
+                {
+                    var unified = item.unified.ToString();
+                    var parts = unified.Split('-');
+                    return parts;
+                }, new UnifiedComparer()).ToList();
+
+            return JsonConvert.SerializeObject(reorderedData, Formatting.Indented);
+        }
+
+        private class UnifiedComparer : IComparer<string[]>
+        {
+            public int Compare(string[] x, string[] y)
+            {
+                int minLength = Mathf.Min(x.Length, y.Length);
+                for (int i = 0; i < minLength; i++)
+                {
+                    int comparison = string.Compare(x[i], y[i], System.StringComparison.Ordinal);
+                    if (comparison != 0)
+                    {
+                        return comparison;
+                    }
+                }
+
+                return x.Length.CompareTo(y.Length);
+            }
         }
 
         #endregion
@@ -147,7 +185,7 @@ namespace KyubEditor.EmojiSearch
                         }
                     }
 
-                    for(int i=0; i< framesToCheck.Count; i++)
+                    for (int i = 0; i < framesToCheck.Count; i++)
                     {
                         var preFrame = framesToCheck[i];
 
@@ -155,11 +193,11 @@ namespace KyubEditor.EmojiSearch
                         var preFrameWithVariants = framesToCheck[i] as PreConvertedImgDataWithVariants;
                         if (preFrameWithVariants != null && preFrameWithVariants.skin_variations != null && preFrameWithVariants.skin_variations.Count > 0)
                         {
-                            for (int j = preFrameWithVariants.skin_variations.Count-1; j >=0; j--)
+                            for (int j = preFrameWithVariants.skin_variations.Count - 1; j >= 0; j--)
                             {
                                 var skinVariantFrame = preFrameWithVariants.skin_variations[j];
                                 if (skinVariantFrame != null)
-                                    framesToCheck.Insert(i+1, skinVariantFrame);
+                                    framesToCheck.Insert(i + 1, skinVariantFrame);
                             }
                         }
 

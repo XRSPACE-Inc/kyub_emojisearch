@@ -1,0 +1,23 @@
+{
+    "name": "KyubEditor.EmojiSearch.Tests",
+    "rootNamespace": "KyubEditor.EmojiSearch",
+    "references": [
+        "GUID:56e1c9c4f4e998c40a70ee9e76d48c50",
+        "GUID:0acc523941302664db1f4e527237feb3",
+        "GUID:27619889b8ba8c24980f49ee34dbb44a"
+    ],
+    "includePlatforms": [],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": true,
+    "precompiledReferences": [
+        "Newtonsoft.Json.dll",
+        "nunit.framework.dll"
+    ],
+    "autoReferenced": false,
+    "defineConstraints": [
+        "UNITY_INCLUDE_TESTS"
+    ],
+    "versionDefines": [],
+    "noEngineReferences": false
+}
